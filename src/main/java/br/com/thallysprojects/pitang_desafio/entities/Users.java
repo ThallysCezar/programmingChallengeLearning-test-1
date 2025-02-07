@@ -30,7 +30,6 @@ public class Users {
     private String password;
     private String phone;
 
-    //lembrar como fazer essa parte de um para muitos OneToMany
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Cars> cars;
 
