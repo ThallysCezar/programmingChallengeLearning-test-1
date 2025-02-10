@@ -1,6 +1,6 @@
 package br.com.thallysprojects.pitang_desafio.configs.security;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,10 +16,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
 public class JwtConfig {
 
-    private final SecurityFilter securityFilter;
+    @Autowired
+    SecurityFilter securityFilter;
 
     private static final String[] AUTH_WHITELIST = {
             // -- Swagger UI v2

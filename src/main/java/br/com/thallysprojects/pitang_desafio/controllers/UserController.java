@@ -15,7 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,15 +28,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@AllArgsConstructor
+//@RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
 public class UserController {
 
-    private final UsersService service;
+    @Autowired
+    UsersService service;
 
-    private AuthenticationManager authenticationManager;
+    @Autowired
+    AuthenticationManager authenticationManager;
 
-    private TokenService tokenService;
+    @Autowired
+    TokenService tokenService;
 
     @Operation(summary = "Get all users")
     @ApiResponses(value = {
