@@ -2,16 +2,19 @@ package br.com.thallysprojects.pitang_desafio.services;
 
 import br.com.thallysprojects.pitang_desafio.dtos.UsersDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Users;
+import br.com.thallysprojects.pitang_desafio.exceptions.UsersGeneralException;
+import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.UsersMapper;
 import br.com.thallysprojects.pitang_desafio.repositories.UsersRepository;
-import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Slf4j
 public class UsersService {
 
     private final UsersRepository repository;
@@ -37,21 +40,23 @@ public class UsersService {
 //                .orElseThrow(Exception::new);
 //    }
 
-    public UsersDTO updateUserById(Long id) {
+    public void updateUserById(Long id) {
         try {
             Users existingUser = repository.findById(id).orElseThrow(() -> new UsersNotFoundException(String.format("Usuário não encontrado com o id '%s'.", id)));
-            return mapper.toDTO(repository.saveAndFlush(existingUser));
+            mapper.toDTO(repository.saveAndFlush(existingUser));
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Erro desconhecido ao atualizar o usuário: {}", e.getMessage(), e);
+            throw new UsersGeneralException();
         }
     }
 
-    public UsersDTO save(UsersDTO dto) throws Exception {
+    public void save(UsersDTO dto) {
         try {
-            return mapper.toDTO(repository.save(mapper.toEntity(dto)));
+            mapper.toDTO(repository.save(mapper.toEntity(dto)));
         } catch (Exception ex) {
-            throw new Exception();
+            log.error("Erro desconhecido ao salvar um usuário: {}", ex.getMessage(), ex);
+            throw new UsersGeneralException();
         }
     }
 

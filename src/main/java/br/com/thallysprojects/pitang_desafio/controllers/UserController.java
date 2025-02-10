@@ -62,7 +62,7 @@ public class UserController {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
-    @Operation(summary = "Update a users by its id")
+    @Operation(summary = "Update a user by its id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Updated the User successfully",
                     content = {@Content(mediaType = "application/json",
@@ -96,7 +96,7 @@ public class UserController {
         service.save(dto);
     }
 
-    @Operation(summary = "Delete a users by its id")
+    @Operation(summary = "Delete a user by its id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User deleted successfully",
                     content = {@Content(mediaType = "application/json",
@@ -107,7 +107,8 @@ public class UserController {
                     content = @Content)})
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@Valid @PathVariable Long id) throws Exception {
+    public void deleteUser(@Valid @PathVariable @Parameter(description = "id of user to be searched")
+                               Long id) throws Exception {
         service.deleteUsers(id);
     }
 
