@@ -18,6 +18,7 @@ public class CarsController {
     private final CarsService service;
 
     @GetMapping
+    //Colocar paginação para dar uma melhorada
     public ResponseEntity<List<CarsDTO>> findAll() throws Exception {
         return ResponseEntity.ok().body(service.findAll());
     }
