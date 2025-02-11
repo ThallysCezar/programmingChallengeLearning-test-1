@@ -47,16 +47,16 @@ public class CarsService {
         }
     }
 
-    public CarsDTO save(CarsDTO dto) {
+    public void save(CarsDTO dto) {
         try {
-            return mapper.toDTO(repository.save(mapper.toEntity(dto)));
+            mapper.toDTO(repository.save(mapper.toEntity(dto)));
         } catch (Exception e) {
             log.error("Erro desconhecido ao salvar o carro: {}", e.getMessage(), e);
             throw new CarsGeneralException();
         }
     }
 
-    public void deleteCars(Long id) throws Exception {
+    public void deleteCars(Long id) {
         if (!repository.existsById(id)) {
             throw new CarsNotFoundException(String.format("Carro não encontrado com o id '%s'.", id));
         }

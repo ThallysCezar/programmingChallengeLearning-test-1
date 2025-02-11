@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,7 @@ public class CarsController {
                     content = @Content)})
     @GetMapping
     //Colocar paginação para dar uma melhorada
-    public ResponseEntity<List<CarsDTO>> findAll() throws Exception {
+    public ResponseEntity<List<CarsDTO>> findAll() {
         return ResponseEntity.ok().body(service.findAll());
     }
 
@@ -51,7 +50,7 @@ public class CarsController {
                     content = @Content)})
     @GetMapping("/{id}")
     public ResponseEntity<CarsDTO> findCarById(@Valid @PathVariable
-                                               @Parameter(description = "id of car to be searched") Long id) throws Exception {
+                                               @Parameter(description = "id of car to be searched") Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
@@ -85,7 +84,7 @@ public class CarsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CarsDTO.class),
                             examples = @ExampleObject(value = "{ \"title\": \"New User\", \"author\": \"Author Name\" }")))
-            @Valid @RequestBody CarsDTO dto) throws Exception {
+            @Valid @RequestBody CarsDTO dto) {
         service.save(dto);
     }
 

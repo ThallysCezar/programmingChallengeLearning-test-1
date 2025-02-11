@@ -34,5 +34,5 @@ public class CarsMapper {
         return dtosList.stream()
                 .map(this::toEntity).collect(Collectors.toList());
     }
-    
+
 }

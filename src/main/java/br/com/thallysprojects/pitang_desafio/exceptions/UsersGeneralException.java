@@ -5,11 +5,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class UsersGeneralException extends ResponseStatusException {
 
-    public UsersGeneralException(){
+    public UsersGeneralException() {
         super(HttpStatus.INTERNAL_SERVER_ERROR, "Erro geral da classe Users");
     }
 
-    public UsersGeneralException(String message){
+    public UsersGeneralException(String message) {
         super(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
 

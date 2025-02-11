@@ -5,11 +5,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class CarsGeneralException extends ResponseStatusException {
 
-    public CarsGeneralException(){
+    public CarsGeneralException() {
         super(HttpStatus.INTERNAL_SERVER_ERROR, "Erro geral da classe Cars");
     }
 
-    public CarsGeneralException(String message){
+    public CarsGeneralException(String message) {
         super(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
 
