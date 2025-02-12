@@ -12,20 +12,23 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(ConversionFailedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleConversion(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiError> handleConversion(RuntimeException ex) {
+        ApiError error = new ApiError(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({CarsNotFoundException.class, UsersNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleEntityNotFound(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiError> handleEntityNotFound(RuntimeException ex) {
+        ApiError error = new ApiError(ex.getMessage(), HttpStatus.NOT_FOUND.value());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({CarsGeneralException.class, UsersGeneralException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<String> handleEntityGeneral(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ApiError> handleEntityGeneral(RuntimeException ex) {
+        ApiError error = new ApiError(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

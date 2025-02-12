@@ -1,16 +1,21 @@
 package br.com.thallysprojects.pitang_desafio.exceptions;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-public class UsersGeneralException extends ResponseStatusException {
+@Getter
+public class UsersGeneralException extends RuntimeException {
+
+    private final Integer errorCode;
 
     public UsersGeneralException() {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, "Erro geral da classe Users");
+        super("Erro geral da classe Users");
+        this.errorCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 
-    public UsersGeneralException(String message) {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, message);
+    public UsersGeneralException(String message, Integer errorCode) {
+        super(message);
+        this.errorCode = errorCode;
     }
 
 }

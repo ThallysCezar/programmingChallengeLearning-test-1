@@ -1,16 +1,22 @@
 package br.com.thallysprojects.pitang_desafio.exceptions;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-public class CarsGeneralException extends ResponseStatusException {
+@Getter
+public class CarsGeneralException extends RuntimeException {
+
+    private final Integer errorCode;
 
     public CarsGeneralException() {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, "Erro geral da classe Cars");
+        super("Erro geral da classe Cars");
+        this.errorCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 
-    public CarsGeneralException(String message) {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, message);
+    public CarsGeneralException(String message, Integer errorCode) {
+        super(message);
+        this.errorCode = errorCode;
     }
 
 }

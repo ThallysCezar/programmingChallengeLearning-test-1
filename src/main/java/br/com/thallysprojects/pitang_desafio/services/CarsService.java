@@ -8,6 +8,7 @@ import br.com.thallysprojects.pitang_desafio.mappers.CarsMapper;
 import br.com.thallysprojects.pitang_desafio.repositories.CarsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,8 @@ public class CarsService {
     public List<CarsDTO> findAll() {
         List<Cars> cars = repository.findAll();
         if (cars.isEmpty()) {
-            throw new CarsNotFoundException("Nenhum carro encontrado");
+            HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
+            throw new CarsNotFoundException("Nenhum carro encontrado", httpStatusCode.value());
         }
         return mapper.toListDTO(cars);
     }
@@ -38,12 +40,15 @@ public class CarsService {
 
     public void updateCarsById(Long id) {
         try {
-            Cars existingUser = repository.findById(id).orElseThrow(() -> new CarsNotFoundException(String.format("Carro não encontrado com o id '%s'.", id)));
+            HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
+            Cars existingUser = repository.findById(id).orElseThrow(() -> new CarsNotFoundException(String.format("Carro não encontrado com o id '%s'.", id), httpStatusCode.value()));
             mapper.toDTO(repository.saveAndFlush(existingUser));
 
         } catch (Exception e) {
+            HttpStatus httpStatusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+
             log.error("Erro desconhecido ao atualizar o carro: {}", e.getMessage(), e);
-            throw new CarsGeneralException();
+            throw new CarsGeneralException("Erro desconhecido ao atualizar o carro", httpStatusCode.value());
         }
     }
 
@@ -51,14 +56,18 @@ public class CarsService {
         try {
             mapper.toDTO(repository.save(mapper.toEntity(dto)));
         } catch (Exception e) {
+            HttpStatus httpStatusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+
             log.error("Erro desconhecido ao salvar o carro: {}", e.getMessage(), e);
-            throw new CarsGeneralException();
+            throw new CarsGeneralException("Erro desconhecido ao salvar o carro", httpStatusCode.value());
         }
     }
 
     public void deleteCars(Long id) {
         if (!repository.existsById(id)) {
-            throw new CarsNotFoundException(String.format("Carro não encontrado com o id '%s'.", id));
+            HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
+
+            throw new CarsNotFoundException(String.format("Carro não encontrado com o id '%s'.", id), httpStatusCode.value());
         }
         repository.deleteById(id);
     }

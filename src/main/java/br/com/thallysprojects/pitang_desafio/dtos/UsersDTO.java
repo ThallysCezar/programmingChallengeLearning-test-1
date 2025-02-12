@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,5 +22,6 @@ public class UsersDTO {
     private String login;
     private String password;
     private String phone;
+    private List<CarsDTO> carsDTOList;
 
 }

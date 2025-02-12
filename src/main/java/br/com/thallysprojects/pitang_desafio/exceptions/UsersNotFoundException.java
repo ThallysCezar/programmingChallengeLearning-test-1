@@ -1,16 +1,21 @@
 package br.com.thallysprojects.pitang_desafio.exceptions;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-public class UsersNotFoundException extends ResponseStatusException {
+@Getter
+public class UsersNotFoundException extends RuntimeException {
 
-    public UsersNotFoundException(){
-        super(HttpStatus.UNPROCESSABLE_ENTITY, "Usuário não encontrado com esse id");
+    private final Integer errorCode;
+
+    public UsersNotFoundException() {
+        super("Usuário não encontrado com esse id");
+        this.errorCode = HttpStatus.NO_CONTENT.value();
     }
 
-    public UsersNotFoundException(String message){
-        super(HttpStatus.UNPROCESSABLE_ENTITY, message);
+    public UsersNotFoundException(String message, Integer errorCode) {
+        super(message);
+        this.errorCode = errorCode;
     }
 
 }
