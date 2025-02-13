@@ -1,12 +1,13 @@
 package br.com.thallysprojects.pitang_desafio.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -24,13 +25,15 @@ public class Users {
     private String firstName;
     private String lastName;
     private String email;
-    private OffsetDateTime brithDay;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
+
     private String login;
     private String password;
     private String phone;
 
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Cars> cars;
-
 
 }

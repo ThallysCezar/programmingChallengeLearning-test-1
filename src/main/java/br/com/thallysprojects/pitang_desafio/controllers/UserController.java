@@ -64,8 +64,14 @@ public class UserController {
                     content = @Content)})
     @PutMapping("/{id}")
     public ResponseEntity<UsersDTO> updateUser(@Valid @PathVariable
-                                               @Parameter(description = "id of user to be searched") Long id) {
-        service.updateUserById(id);
+                                               @Parameter(description = "id of user to be searched") Long id,
+                                               @Valid
+                                               @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                       description = "User to create", required = true,
+                                                       content = @Content(mediaType = "application/json",
+                                                               schema = @Schema(implementation = UsersDTO.class),
+                                                               examples = @ExampleObject(value = "{ \"title\": \"New User\", \"author\": \"Author Name\" }"))) @RequestBody UsersDTO dto) {
+        service.updateUserById(id, dto);
         return ResponseEntity.noContent().build();
     }
 

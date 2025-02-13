@@ -6,6 +6,7 @@ import br.com.thallysprojects.pitang_desafio.exceptions.UsersGeneralException;
 import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.UsersMapper;
 import br.com.thallysprojects.pitang_desafio.repositories.UsersRepository;
+import br.com.thallysprojects.pitang_desafio.utils.ValidationsUsers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,11 +23,12 @@ public class UsersService {
 
     private final UsersMapper mapper;
 
+    private final ValidationsUsers validationsUsers;
+
     public List<UsersDTO> findAll() {
         List<Users> users = repository.findAll();
         if (users.isEmpty()) {
-            HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
-            throw new UsersNotFoundException("Nenhum usuário encontrado", httpStatusCode.value());
+            throw new UsersNotFoundException("Nenhum usuário encontrado", HttpStatus.NOT_FOUND.value());
         }
         return mapper.toListDTO(users);
     }
@@ -35,24 +37,32 @@ public class UsersService {
         return repository.findById(id).map(mapper::toDTO).orElseThrow(UsersNotFoundException::new);
     }
 
-    //Fazer para pageable
-//    public UsersDTO findAllWithPageable(Pageable pageable) throws Exception {
-//        return repository.findAllWithPageable(pageable)
-//                .map(mapper::toDTO)
-//                .orElseThrow(Exception::new);
-//    }
-
-    public void updateUserById(Long id) {
+    public void updateUserById(Long id, UsersDTO dto) {
         try {
-            HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
-            Users existingUser = repository.findById(id).orElseThrow(() -> new UsersNotFoundException(String.format("Usuário não encontrado com o id '%s'.", id), httpStatusCode.value()));
-            mapper.toDTO(repository.saveAndFlush(existingUser));
+            Users existingUser = validationsUsers.validateUserExists(id);
 
+            existingUser.setFirstName(dto.getFirstName());
+            existingUser.setLastName(dto.getLastName());
+
+            validationsUsers.validateEmailChange(existingUser, dto.getEmail());
+
+            validationsUsers.validateLoginChange(existingUser, dto.getLogin());
+
+            existingUser.setBirthday(dto.getBirthday());
+            existingUser.setPhone(dto.getPhone());
+
+            if (validationsUsers.isValidPassword(dto.getPassword())) {
+                existingUser.setPassword(dto.getPassword());
+            }
+
+            existingUser.setCars(validationsUsers.validateAndUpdateUserCars(existingUser, dto.getCars()));
+            repository.saveAndFlush(existingUser);
+
+        } catch (UsersNotFoundException | UsersGeneralException e) {
+            throw e;
         } catch (Exception e) {
-            HttpStatus httpStatusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-
             log.error("Erro desconhecido ao atualizar o usuário: {}", e.getMessage(), e);
-            throw new UsersGeneralException("Erro desconhecido ao atualizar o usuário: {}", httpStatusCode.value());
+            throw new UsersGeneralException("Erro desconhecido ao atualizar o usuário.", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
@@ -60,18 +70,14 @@ public class UsersService {
         try {
             mapper.toDTO(repository.save(mapper.toEntity(dto)));
         } catch (Exception ex) {
-            HttpStatus httpStatusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-
             log.error("Erro desconhecido ao salvar um usuário: {}", ex.getMessage(), ex);
-            throw new UsersGeneralException("Erro desconhecido ao salvar um usuário", httpStatusCode.value());
+            throw new UsersGeneralException("Erro desconhecido ao salvar um usuário", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
     public void deleteUsers(Long id) {
         if (!repository.existsById(id)) {
-            HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
-
-            throw new UsersNotFoundException(String.format("Usuário não encontrado para o ID '%s'.", id), httpStatusCode.value());
+            throw new UsersNotFoundException(String.format("Usuário não encontrado para o ID '%s'.", id), HttpStatus.NOT_FOUND.value());
         }
         repository.deleteById(id);
     }

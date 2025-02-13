@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -82,7 +83,7 @@ public class DataSeederConfig implements CommandLineRunner{
             user1.setFirstName("Joao");
             user1.setLastName("Silva");
             user1.setEmail("joao@email.com");
-            user1.setBrithDay(OffsetDateTime.now().minusYears(25)); // Exemplo de data de nascimento
+            user1.setBirthday(LocalDate.now().minusYears(25)); // Exemplo de data de nascimento
             user1.setLogin("joaosilva");
             user1.setPassword("senha123");
             user1.setPhone("11999999999");
