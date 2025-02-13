@@ -41,6 +41,7 @@ public class UsersMapper {
                 model.getLogin(),
                 model.getPassword(),
                 model.getPhone(),
+                model.getRole(),
                 model.getCars() != null ? model.getCars().stream().map(carsMapper::toDTO).toList() : null
         );
     }
