@@ -4,10 +4,13 @@ import br.com.thallysprojects.pitang_desafio.configs.security.TokenService;
 import br.com.thallysprojects.pitang_desafio.dtos.AuthenticationRegisterDTO;
 import br.com.thallysprojects.pitang_desafio.dtos.AuthenticationUserDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Users;
+import br.com.thallysprojects.pitang_desafio.exceptions.UsersGeneralException;
+import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
 import br.com.thallysprojects.pitang_desafio.repositories.UsersRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,23 +27,15 @@ public class AuthenticationService {
     private final UsersRepository usersRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-//    @Transactional
-//    public String login(AuthenticationUserDTO dto){
-//        UsernamePasswordAuthenticationToken authenticationToken =
-//                new UsernamePasswordAuthenticationToken(dto.getLogin(), dto.getPassword());
-//
-//        Authentication authentication = manager.authenticate(authenticationToken);
-//        Users user = (Users) authentication.getPrincipal();
-//
-//        return tokenService.gerarTokenJwt(user);
-//    }
-
     @Transactional
     public String login(AuthenticationUserDTO dto) {
         Users user = usersRepository.findByLogin(dto.getLogin());
+        if(user == null){
+            throw new UsersNotFoundException("Invalid login or password", HttpStatus.BAD_REQUEST.value());
+        }
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Credenciais inválidas");
+            throw new UsersNotFoundException("Credenciais inválidas", HttpStatus.BAD_REQUEST.value());
         }
 
         return tokenService.gerarTokenJwt(user);

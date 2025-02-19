@@ -15,10 +15,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class ConfigurationSecurity {
+
+    @Autowired
+    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private static final String[] AUTH_WHITELIST = {
             // -- Swagger UI v2
@@ -49,22 +53,32 @@ public class ConfigurationSecurity {
                         c -> c.ignoringRequestMatchers("/h2-console/**").disable()
                 )
                 .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable // Permite que o H2 Console seja exibido em um frame
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable
                         )
                 )
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a ->
                         a.requestMatchers(HttpMethod.GET, "/api/users").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+//                                .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+//                                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/signin").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/users/**").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/api/users/**").permitAll()
+                                .requestMatchers(HttpMethod.DELETE, "/api/users/**").permitAll()
+//                                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/clientes").hasRole("CLIENTE")
+//                                .requestMatchers(HttpMethod.GET, "/api/clientes").hasRole("CLIENTE")
                                 .requestMatchers("/h2-console/**").permitAll()
-//                                .requestMatchers(antMatcher("/h2-console/**")).permitAll()
+                                .requestMatchers(antMatcher("/h2-console/**")).permitAll()
                                 .requestMatchers(toH2Console()).permitAll()
                                 .requestMatchers(AUTH_WHITELIST).permitAll()
                                 .anyRequest().authenticated())
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint) // 👈 Aqui definimos o EntryPoint
+                )
                 .addFilterBefore(secutiryFilterChain, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
