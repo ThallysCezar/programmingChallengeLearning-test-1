@@ -35,12 +35,17 @@ public class ValidationsUsers {
         if (!existingUser.getEmail().equals(newEmail) && repository.existsByEmail(newEmail)) {
             throw new UsersGeneralException("O e-mail informado já está em uso.", HttpStatus.BAD_REQUEST.value());
         }
+
+        existingUser.setEmail(newEmail);
+
     }
 
     public void validateLoginChange(Users existingUser, String newLogin) {
         if (!existingUser.getLogin().equals(newLogin) && repository.existsByLogin(newLogin)) {
             throw new UsersGeneralException("O login informado já está em uso.", HttpStatus.BAD_REQUEST.value());
         }
+
+        existingUser.setLogin(newLogin);
     }
 
     public boolean isValidPassword(String password) {

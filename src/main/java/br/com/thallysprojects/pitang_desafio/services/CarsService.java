@@ -4,8 +4,11 @@ import br.com.thallysprojects.pitang_desafio.dtos.CarsDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Cars;
 import br.com.thallysprojects.pitang_desafio.exceptions.CarsGeneralException;
 import br.com.thallysprojects.pitang_desafio.exceptions.CarsNotFoundException;
+import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.CarsMapper;
 import br.com.thallysprojects.pitang_desafio.repositories.CarsRepository;
+import br.com.thallysprojects.pitang_desafio.utils.ValidationsCars;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,8 @@ public class CarsService {
 
     private final CarsMapper mapper;
 
+    private final ValidationsCars validationsCars;
+
     public List<CarsDTO> findAll() {
         List<Cars> cars = repository.findAll();
         if (cars.isEmpty()) {
@@ -37,11 +42,18 @@ public class CarsService {
                 .orElseThrow(CarsNotFoundException::new);
     }
 
-    public void updateCarsById(Long id) {
+    public void updateCarsById(Long id, CarsDTO dto) {
         try {
-            Cars existingUser = repository.findById(id).orElseThrow(() -> new CarsNotFoundException(String.format("Carro não encontrado com o id '%s'.", id), HttpStatus.NOT_FOUND.value()));
-            mapper.toDTO(repository.saveAndFlush(existingUser));
+            Cars existingCars = validationsCars.validateCarsExists(id);
+            existingCars.setYears(dto.getYears());
 
+            validationsCars.validateLicenseChange(existingCars, dto.getLicensePlate());
+            existingCars.setModel(dto.getModel());
+            existingCars.setColor(dto.getColor());
+
+            repository.saveAndFlush(existingCars);
+        } catch (CarsNotFoundException | CarsGeneralException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Erro desconhecido ao atualizar o carro: {}", e.getMessage(), e);
             throw new CarsGeneralException("Erro desconhecido ao atualizar o carro", HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -50,8 +62,19 @@ public class CarsService {
 
     public void save(CarsDTO dto) {
         try {
+            if (repository.findByLicensePlate(dto.getLicensePlate()) != null) {
+                throw new UsersNotFoundException("License plate already exists", HttpStatus.BAD_REQUEST.value());
+            }
+
+            if (StringUtils.isBlank(dto.getYears()) ||
+                    StringUtils.isBlank(dto.getLicensePlate()) ||
+                    StringUtils.isBlank(dto.getModel()) ||
+                    StringUtils.isBlank(dto.getColor())) {
+                throw new UsersNotFoundException("Missing fields", HttpStatus.BAD_REQUEST.value());
+            }
+
             mapper.toDTO(repository.save(mapper.toEntity(dto)));
-        } catch (Exception e) {
+        } catch (CarsGeneralException e) {
             log.error("Erro desconhecido ao salvar o carro: {}", e.getMessage(), e);
             throw new CarsGeneralException("Erro desconhecido ao salvar o carro", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }

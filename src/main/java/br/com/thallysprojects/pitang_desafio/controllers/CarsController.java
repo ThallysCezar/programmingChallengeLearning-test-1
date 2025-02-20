@@ -47,15 +47,41 @@ public class CarsController {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
-    @Operation(summary = "Update a car by its id")
+//    @Operation(summary = "Update a car by its id")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "201", description = "Updated the Car successfully"),
+//            @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
+//            @ApiResponse(responseCode = "404", description = "Car not found")})
+//    @PutMapping("/{id}")
+//    public ResponseEntity<CarsDTO> updateCars(
+//            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+//                    description = "User data to update",
+//                    required = true,
+//                    content = @Content(mediaType = "application/json",
+//                            schema = @Schema(implementation = CarsDTO.class),
+//                            examples = @ExampleObject(value = """
+//                                    {
+//                                     "year": 2018,
+//                                     "licensePlate": "PDV-0625",
+//                                     "model": "Audi",
+//                                     "color": "White"
+//                                     }"""))) @Valid @PathVariable
+//            @Parameter(description = "id of user to be searched") Long id, CarsDTO dto) {
+//        service.updateCarsById(id, dto);
+//        return ResponseEntity.ok().build();
+//    }
+
+    @Operation(summary = "Update a user by ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Updated the Car successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid id supplied"),
-            @ApiResponse(responseCode = "404", description = "Car not found")})
+            @ApiResponse(responseCode = "204", description = "User updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input provided"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<CarsDTO> updateCars(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "User data to update",
+    public ResponseEntity<CarsDTO> updateUser(
+            @PathVariable @Parameter(description = "ID of the car") Long id,
+            @Valid @RequestBody @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Car data to update",
                     required = true,
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CarsDTO.class),
@@ -65,10 +91,10 @@ public class CarsController {
                                      "licensePlate": "PDV-0625",
                                      "model": "Audi",
                                      "color": "White"
-                                     }"""))) @Valid @PathVariable
-            @Parameter(description = "id of user to be searched") Long id) {
-        service.updateCarsById(id);
-        return ResponseEntity.ok().build();
+                                     }""")))
+            CarsDTO dto) {
+        service.updateCarsById(id, dto);
+        return ResponseEntity.ok(dto);
     }
 
     @Operation(summary = "Create a new car")

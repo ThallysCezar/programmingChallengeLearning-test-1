@@ -2,6 +2,7 @@ package br.com.thallysprojects.pitang_desafio.services;
 
 import br.com.thallysprojects.pitang_desafio.dtos.UsersDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Users;
+import br.com.thallysprojects.pitang_desafio.exceptions.CarsGeneralException;
 import br.com.thallysprojects.pitang_desafio.exceptions.UsersGeneralException;
 import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.UsersMapper;
@@ -55,7 +56,6 @@ public class UsersService implements UserDetailsService {
             existingUser.setLastName(dto.getLastName());
 
             validationsUsers.validateEmailChange(existingUser, dto.getEmail());
-
             validationsUsers.validateLoginChange(existingUser, dto.getLogin());
 
             existingUser.setBirthday(dto.getBirthday());
@@ -63,12 +63,12 @@ public class UsersService implements UserDetailsService {
             existingUser.setRole(dto.getRole());
 
             if (validationsUsers.isValidPassword(dto.getPassword())) {
-                existingUser.setPassword(dto.getPassword());
+                String criptografarSenha = new BCryptPasswordEncoder().encode(dto.getPassword());
+                existingUser.setPassword(criptografarSenha);
             }
 
             existingUser.setCars(validationsUsers.validateAndUpdateUserCars(existingUser, dto.getCars()));
             repository.saveAndFlush(existingUser);
-
         } catch (UsersNotFoundException | UsersGeneralException e) {
             throw e;
         } catch (Exception e) {
@@ -133,9 +133,9 @@ public class UsersService implements UserDetailsService {
             String criptografarSenha = new BCryptPasswordEncoder().encode(dto.getPassword());
             dto.setPassword(criptografarSenha);
             mapper.toDTO(repository.save(mapper.toEntity(dto)));
-        } catch (UsersNotFoundException ex) {
+        } catch (UsersGeneralException ex) {
             log.error("Erro desconhecido ao salvar um usuário: {}", ex.getMessage(), ex);
-            throw ex;
+            throw new UsersGeneralException("Erro desconhecido ao salvar o carro", HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
