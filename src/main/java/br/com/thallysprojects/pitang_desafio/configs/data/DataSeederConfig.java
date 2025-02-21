@@ -31,7 +31,6 @@ public class DataSeederConfig implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (usersRepository.count() == 0) {
 
-            // Criando um usuário
             Users user1 = new Users();
             user1.setFirstName("Joao");
             user1.setLastName("Silva");

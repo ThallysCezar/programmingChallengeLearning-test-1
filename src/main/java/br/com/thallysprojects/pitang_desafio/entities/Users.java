@@ -45,10 +45,21 @@ public class Users implements UserDetails {
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Cars> cars;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate lastLogin;
+
     public Users(String login, String encryptedPassword, UserRole role) {
         this.login = login;
         this.password = encryptedPassword;
         this.role = role;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDate.now();
     }
 
     @Override

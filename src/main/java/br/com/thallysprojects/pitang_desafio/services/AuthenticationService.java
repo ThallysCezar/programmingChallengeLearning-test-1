@@ -18,6 +18,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -38,27 +40,10 @@ public class AuthenticationService {
             throw new UsersNotFoundException("Credenciais inválidas", HttpStatus.BAD_REQUEST.value());
         }
 
+        user.setLastLogin(LocalDate.now());
+        usersRepository.save(user);
+
         return tokenService.gerarTokenJwt(user);
-    }
-
-
-    @Transactional
-    public ResponseEntity<String> register(@RequestBody @Valid AuthenticationRegisterDTO data) {
-        if (usersRepository.findByEmail(data.getEmail()) != null || usersRepository.findByLogin(data.getLogin()) != null) {
-            return ResponseEntity.badRequest().body("Usuário já cadastrado");
-        }
-
-        String encryptedPassword = passwordEncoder.encode(data.getPassword());
-
-        Users newUser = new Users();
-        newUser.setEmail(data.getEmail());
-        newUser.setLogin(data.getLogin());
-        newUser.setPassword(encryptedPassword);
-        newUser.setRole(data.getUserRole());
-
-        usersRepository.save(newUser);
-
-        return ResponseEntity.ok("Usuário cadastrado com sucesso");
     }
 
 }

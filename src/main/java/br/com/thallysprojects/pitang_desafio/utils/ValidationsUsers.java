@@ -1,13 +1,16 @@
 package br.com.thallysprojects.pitang_desafio.utils;
 
 import br.com.thallysprojects.pitang_desafio.dtos.CarsDTO;
+import br.com.thallysprojects.pitang_desafio.dtos.UsersDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Cars;
 import br.com.thallysprojects.pitang_desafio.entities.Users;
+import br.com.thallysprojects.pitang_desafio.exceptions.UsersBadRequestException;
 import br.com.thallysprojects.pitang_desafio.exceptions.UsersGeneralException;
 import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.CarsMapper;
 import br.com.thallysprojects.pitang_desafio.repositories.CarsRepository;
 import br.com.thallysprojects.pitang_desafio.repositories.UsersRepository;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -90,6 +93,47 @@ public class ValidationsUsers {
         existingUser.getCars().addAll(updatedCars);
 
         return updatedCars;
+    }
+
+    public void validateEmailFormat(String email) {
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            throw new UsersBadRequestException("Invalid fields, email", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    public void validateLoginFormat(String login) {
+        if (!login.matches("^[a-zA-Z0-9_]{5,}$")) {
+            throw new UsersBadRequestException("Invalid fields, login", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    public void validatePasswordFormat(String password) {
+        if (!password.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$")) {
+            throw new UsersBadRequestException("Invalid fields, password", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    public void validateMissingFields(UsersDTO dto) {
+        if (StringUtils.isBlank(dto.getEmail()) ||
+                StringUtils.isBlank(dto.getLogin()) ||
+                StringUtils.isBlank(dto.getPassword()) ||
+                StringUtils.isBlank(dto.getFirstName()) ||
+                StringUtils.isBlank(dto.getLastName())) {
+
+            throw new UsersBadRequestException("Missing fields", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    public void validateEmailExists(String email, UsersRepository repository) {
+        if (repository.findByEmail(email) != null) {
+            throw new UsersBadRequestException("Email already exists", HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    public void validateLoginExists(String login, UsersRepository repository) {
+        if (repository.findByLogin(login) != null) {
+            throw new UsersBadRequestException("Login already exists", HttpStatus.BAD_REQUEST.value());
+        }
     }
 
 }

@@ -40,7 +40,6 @@ public class ConfigurationSecurity {
             "/actuator/health",
             "/actuator/metrics",
             "/actuator/info",
-//            "/h2-console/**"
             // other public endpoints of your API may be appended to this array
     };
 
@@ -60,24 +59,20 @@ public class ConfigurationSecurity {
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a ->
                         a.requestMatchers(HttpMethod.GET, "/api/users").permitAll()
-//                                .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
-//                                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/signin").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/users/**").permitAll()
                                 .requestMatchers(HttpMethod.PUT, "/api/users/**").permitAll()
                                 .requestMatchers(HttpMethod.DELETE, "/api/users/**").permitAll()
-//                                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-//                                .requestMatchers(HttpMethod.GET, "/api/clientes").hasRole("CLIENTE")
                                 .requestMatchers("/h2-console/**").permitAll()
                                 .requestMatchers(antMatcher("/h2-console/**")).permitAll()
                                 .requestMatchers(toH2Console()).permitAll()
                                 .requestMatchers(AUTH_WHITELIST).permitAll()
                                 .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint) // 👈 Aqui definimos o EntryPoint
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
                 .addFilterBefore(secutiryFilterChain, UsernamePasswordAuthenticationFilter.class)
                 .build();

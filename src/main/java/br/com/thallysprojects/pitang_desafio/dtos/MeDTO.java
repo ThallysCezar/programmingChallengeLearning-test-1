@@ -23,14 +23,14 @@ public class MeDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
     private String login;
-    private String password;
     private String phone;
 
     private List<CarsDTO> cars = new ArrayList<>();
 
-    //data da criação do usuario
-    private String createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate createdAt;
 
-    //data da ultima vez que o usuário realizou o login
-    private String lastLogin;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate lastLogin;
+
 }

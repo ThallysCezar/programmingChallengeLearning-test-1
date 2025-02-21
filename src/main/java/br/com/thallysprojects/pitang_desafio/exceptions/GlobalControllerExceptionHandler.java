@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
 
-    @ExceptionHandler(ConversionFailedException.class)
+    @ExceptionHandler({ConversionFailedException.class, UsersBadRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> handleConversion(RuntimeException ex) {
         ApiError error = new ApiError(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
