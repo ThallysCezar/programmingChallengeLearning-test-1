@@ -1,4 +1,4 @@
-package br.com.thallysprojects.pitang_desafio.exceptions;
+package br.com.thallysprojects.pitang_desafio.exceptions.cars;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

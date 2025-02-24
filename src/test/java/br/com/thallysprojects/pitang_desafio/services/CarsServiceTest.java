@@ -2,14 +2,17 @@ package br.com.thallysprojects.pitang_desafio.services;
 
 import br.com.thallysprojects.pitang_desafio.dtos.CarsDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Cars;
-import br.com.thallysprojects.pitang_desafio.exceptions.CarsNotFoundException;
-import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsBadRequestException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsGeneralException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.CarsMapper;
 import br.com.thallysprojects.pitang_desafio.repositories.CarsRepository;
 import br.com.thallysprojects.pitang_desafio.utils.ValidationsCars;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,20 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-
-//@ExtendWith(MockitoExtension.class)
+@DisplayName("Service de Carros")
 class CarsServiceTest {
 
-    //    @InjectMocks
     private CarsService service;
 
-    //    @Mock
     private CarsRepository repository;
 
-    //    @Mock
     private CarsMapper mapper;
 
-    //    @Mock
     private ValidationsCars validationsCars;
 
 
@@ -46,26 +44,23 @@ class CarsServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar todos os carros com sucesso")
     void testFindAllSuccess() {
-        // Arrange
         Cars car = new Cars();
         when(repository.findAll()).thenReturn(Collections.singletonList(car));
         when(mapper.toListDTO(Collections.singletonList(car))).thenReturn(Collections.singletonList(new CarsDTO()));
 
-        // Act
         List<CarsDTO> result = service.findAll();
 
-        // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
     }
 
     @Test
+    @DisplayName("Deve lançar CarsNotFoundException quando houver erro ao procurar todos os carros")
     void testFindAllNoCarsFound() {
-        // Arrange
         when(repository.findAll()).thenReturn(Collections.emptyList());
 
-        // Act & Assert
         CarsNotFoundException exception = assertThrows(CarsNotFoundException.class, () -> {
             service.findAll();
         });
@@ -74,33 +69,30 @@ class CarsServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar um carro, pelo id, com sucesso")
     void testFindByIdSuccess() {
-        // Arrange
         Cars car = new Cars();
         when(repository.findById(1L)).thenReturn(Optional.of(car));
         when(mapper.toDTO(car)).thenReturn(new CarsDTO());
 
-        // Act
         CarsDTO result = service.findById(1L);
 
-        // Assert
         assertNotNull(result);
     }
 
     @Test
+    @DisplayName("Deve lançar CarsNotFoundException quando houver erro ao procurar um carro pelo seu id")
     void testFindByIdNotFound() {
-        // Arrange
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(CarsNotFoundException.class, () -> {
             service.findById(1L);
         });
     }
 
     @Test
+    @DisplayName("Deve atualizar um carro, pelo id, com sucesso")
     void testUpdateCarsByIdSuccess() {
-        // Arrange
         CarsDTO dto = new CarsDTO();
         dto.setYears("2023");
         dto.setLicensePlate("ABC1234");
@@ -110,16 +102,75 @@ class CarsServiceTest {
         Cars existingCar = new Cars();
         when(validationsCars.validateCarsExists(1L)).thenReturn(existingCar);
 
-        // Act
         service.updateCarsById(1L, dto);
 
-        // Assert
         verify(repository, times(1)).saveAndFlush(existingCar);
     }
 
     @Test
+    @DisplayName("Deve lançar CarsNotFoundException quando houver erro ao atualizar um carro pelo seu id")
+    void testUpdatedNotFound() {
+        Long id = 1L;
+        CarsDTO dto = new CarsDTO();
+
+        when(validationsCars.validateCarsExists(id)).thenThrow(new CarsNotFoundException("Carro não encontrado", HttpStatus.NOT_FOUND.value()));
+
+        assertThrows(CarsNotFoundException.class, () -> {
+            service.updateCarsById(id, dto);
+        });
+
+        verify(validationsCars, times(1)).validateCarsExists(id);
+        verify(repository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar CarsBadRequestException quando houver erro ao atualizar um carro pelo seu id")
+    void testUpdateCarsByIdInvalidLicenseChange() {
+        Long id = 1L;
+        CarsDTO dto = new CarsDTO();
+        dto.setLicensePlate("ABC1234");
+
+        Cars existingCar = new Cars();
+        existingCar.setId(id);
+        existingCar.setLicensePlate("XYZ5678");
+
+        when(validationsCars.validateCarsExists(id)).thenReturn(existingCar);
+
+        doThrow(new CarsGeneralException("A licensa já está em uso.", HttpStatus.BAD_REQUEST.value())).when(validationsCars).validateLicenseChange(existingCar, dto.getLicensePlate());
+
+        assertThrows(CarsGeneralException.class, () -> {
+            service.updateCarsById(id, dto);
+        });
+
+        verify(validationsCars, times(1)).validateCarsExists(id);
+        verify(validationsCars, times(1)).validateLicenseChange(existingCar, dto.getLicensePlate());
+        verify(repository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar CarsGeneralException quando houver erro ao atualizar um carro pelo seu id")
+    void testUpdateCarsByIdUnknownError() {
+        Long id = 1L;
+        CarsDTO dto = new CarsDTO();
+
+        Cars existingCar = new Cars();
+        existingCar.setId(id);
+
+        when(validationsCars.validateCarsExists(id)).thenReturn(existingCar);
+
+        when(repository.saveAndFlush(existingCar)).thenThrow(new RuntimeException("Erro desconhecido"));
+
+        assertThrows(CarsGeneralException.class, () -> {
+            service.updateCarsById(id, dto);
+        });
+
+        verify(validationsCars, times(1)).validateCarsExists(id);
+        verify(repository, times(1)).saveAndFlush(existingCar);
+    }
+
+    @Test
+    @DisplayName("Deve salvar um carro com sucesso")
     void testSaveSuccess() {
-        // Arrange
         CarsDTO dto = new CarsDTO();
         dto.setYears("2023");
         dto.setLicensePlate("ABC1234");
@@ -127,7 +178,6 @@ class CarsServiceTest {
         dto.setColor("Red");
 
         when(repository.findByLicensePlate("ABC1234")).thenReturn(null);
-
 
         Cars carEntity = new Cars();
         carEntity.setId(1L);
@@ -137,24 +187,21 @@ class CarsServiceTest {
 
         when(mapper.toDTO(any(Cars.class))).thenReturn(dto);
 
-        // Act
         service.save(dto);
 
-        // Assert
-        verify(repository, times(1)).save(carEntity); // Verifica se o save foi chamado com o carEntity
+        verify(repository, times(1)).save(carEntity);
         verify(mapper, times(1)).toDTO(carEntity);
     }
 
     @Test
+    @DisplayName("Deve lançar CarsBadRequestException ao tentar salvar um carro")
     void testSaveLicensePlateAlreadyExists() {
-        // Arrange
         CarsDTO dto = new CarsDTO();
         dto.setLicensePlate("ABC1234");
 
         when(repository.findByLicensePlate("ABC1234")).thenReturn(new Cars());
 
-        // Act & Assert
-        UsersNotFoundException exception = assertThrows(UsersNotFoundException.class, () -> {
+        CarsBadRequestException exception = assertThrows(CarsBadRequestException.class, () -> {
             service.save(dto);
         });
 
@@ -162,8 +209,8 @@ class CarsServiceTest {
     }
 
     @Test
+    @DisplayName("Deve deletar um carro com sucesso")
     void testDeleteCarsSuccess() {
-        // Criando um carro simulado
         final var id = 1L;
         final var carEntity = new Cars();
         carEntity.setId(id);
@@ -171,25 +218,20 @@ class CarsServiceTest {
         final var carDTO = new CarsDTO();
         carDTO.setId(id);
 
-        // Mockando a busca pelo carro antes de deletar
         when(repository.existsById(id)).thenReturn(true);
 
-        // Mockando a exclusão
         doNothing().when(repository).deleteById(id);
 
-        // Act
         service.deleteCars(id);
 
-        // Assert
         verify(repository, times(1)).deleteById(id);
     }
 
     @Test
+    @DisplayName("Deve lançar um CarsNotFoundException ao tentar deletar um carro pelo seu id")
     void testDeleteCarsNotFound() {
-        // Arrange
         when(repository.existsById(1L)).thenReturn(false);
 
-        // Act & Assert
         CarsNotFoundException exception = assertThrows(CarsNotFoundException.class, () -> {
             service.deleteCars(1L);
         });

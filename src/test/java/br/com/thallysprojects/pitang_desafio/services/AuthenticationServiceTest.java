@@ -3,13 +3,17 @@ package br.com.thallysprojects.pitang_desafio.services;
 import br.com.thallysprojects.pitang_desafio.configs.security.TokenService;
 import br.com.thallysprojects.pitang_desafio.dtos.AuthenticationUserDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Users;
-import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
+import br.com.thallysprojects.pitang_desafio.exceptions.users.UsersNotFoundException;
+import br.com.thallysprojects.pitang_desafio.mappers.CarsMapper;
+import br.com.thallysprojects.pitang_desafio.repositories.CarsRepository;
 import br.com.thallysprojects.pitang_desafio.repositories.UsersRepository;
+import br.com.thallysprojects.pitang_desafio.utils.ValidationsCars;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,36 +26,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+//@ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
 
-    @InjectMocks
+//    @InjectMocks
     AuthenticationService service;
 
-    @Mock
+//    @Mock
     AuthenticationManager manager;
 
-    @Mock
+//    @Mock
     TokenService tokenService;
 
-    @Mock
+//    @Mock
     UsersRepository usersRepository;
 
-    @Mock
+//    @Mock
     BCryptPasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-//        userDTO = new AuthenticationUserDTO();
-//        userDTO.setLogin("testUser");
-//        userDTO.setPassword("password123");
-//
-//        user = new Users();
-//        user.setLogin("testUser");
-//        user.setPassword("encodedPassword");
-//        user.setLastLogin(LocalDate.now());
+        this.manager = Mockito.mock(AuthenticationManager.class);
+        this.tokenService = Mockito.mock(TokenService.class);
+        this.usersRepository = Mockito.mock(UsersRepository.class);
+        this.passwordEncoder = Mockito.mock(BCryptPasswordEncoder.class);
+        this.service = new AuthenticationService(manager, tokenService, usersRepository, passwordEncoder);
     }
 
     @Test

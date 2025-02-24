@@ -1,4 +1,4 @@
-package br.com.thallysprojects.pitang_desafio.exceptions;
+package br.com.thallysprojects.pitang_desafio.exceptions.globalException;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

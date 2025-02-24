@@ -2,9 +2,10 @@ package br.com.thallysprojects.pitang_desafio.services;
 
 import br.com.thallysprojects.pitang_desafio.dtos.CarsDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Cars;
-import br.com.thallysprojects.pitang_desafio.exceptions.CarsGeneralException;
-import br.com.thallysprojects.pitang_desafio.exceptions.CarsNotFoundException;
-import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsBadRequestException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsGeneralException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsNotFoundException;
+import br.com.thallysprojects.pitang_desafio.exceptions.users.UsersNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.CarsMapper;
 import br.com.thallysprojects.pitang_desafio.repositories.CarsRepository;
 import br.com.thallysprojects.pitang_desafio.utils.ValidationsCars;
@@ -35,7 +36,6 @@ public class CarsService {
         return mapper.toListDTO(cars);
     }
 
-
     public CarsDTO findById(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
@@ -52,7 +52,7 @@ public class CarsService {
             existingCars.setColor(dto.getColor());
 
             repository.saveAndFlush(existingCars);
-        } catch (CarsNotFoundException | CarsGeneralException e) {
+        } catch (CarsNotFoundException | CarsBadRequestException e) {
             throw e;
         } catch (Exception e) {
             log.error("Erro desconhecido ao atualizar o carro: {}", e.getMessage(), e);
@@ -63,14 +63,14 @@ public class CarsService {
     public void save(CarsDTO dto) {
         try {
             if (repository.findByLicensePlate(dto.getLicensePlate()) != null) {
-                throw new UsersNotFoundException("License plate already exists", HttpStatus.BAD_REQUEST.value());
+                throw new CarsBadRequestException("License plate already exists", HttpStatus.BAD_REQUEST.value());
             }
 
             if (StringUtils.isBlank(dto.getYears()) ||
                     StringUtils.isBlank(dto.getLicensePlate()) ||
                     StringUtils.isBlank(dto.getModel()) ||
                     StringUtils.isBlank(dto.getColor())) {
-                throw new UsersNotFoundException("Missing fields", HttpStatus.BAD_REQUEST.value());
+                throw new CarsBadRequestException("Missing fields", HttpStatus.BAD_REQUEST.value());
             }
 
             mapper.toDTO(repository.save(mapper.toEntity(dto)));

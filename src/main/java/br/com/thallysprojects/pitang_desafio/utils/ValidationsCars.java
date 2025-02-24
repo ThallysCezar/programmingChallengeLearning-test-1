@@ -1,9 +1,9 @@
 package br.com.thallysprojects.pitang_desafio.utils;
 
-import br.com.thallysprojects.pitang_desafio.dtos.CarsDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Cars;
-import br.com.thallysprojects.pitang_desafio.exceptions.CarsGeneralException;
-import br.com.thallysprojects.pitang_desafio.exceptions.CarsNotFoundException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsBadRequestException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsGeneralException;
+import br.com.thallysprojects.pitang_desafio.exceptions.cars.CarsNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.CarsMapper;
 import br.com.thallysprojects.pitang_desafio.repositories.CarsRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class ValidationsCars {
 
     public void validateLicenseChange(Cars existingCar, String newLicense) {
         if (!existingCar.getLicensePlate().equals(newLicense) && carsRepository.existsByLicensePlate(newLicense)) {
-            throw new CarsGeneralException("A licensa já está em uso.", HttpStatus.BAD_REQUEST.value());
+            throw new CarsBadRequestException("A licensa já está em uso.", HttpStatus.BAD_REQUEST.value());
         }
 
         existingCar.setLicensePlate(newLicense);

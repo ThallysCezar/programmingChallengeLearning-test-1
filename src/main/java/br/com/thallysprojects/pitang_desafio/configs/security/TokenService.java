@@ -1,7 +1,6 @@
 package br.com.thallysprojects.pitang_desafio.configs.security;
 
 import br.com.thallysprojects.pitang_desafio.entities.Users;
-import br.com.thallysprojects.pitang_desafio.exceptions.UsersNotFoundException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -9,7 +8,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
