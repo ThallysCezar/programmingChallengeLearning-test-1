@@ -4,18 +4,11 @@ import br.com.thallysprojects.pitang_desafio.configs.security.TokenService;
 import br.com.thallysprojects.pitang_desafio.dtos.AuthenticationUserDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Users;
 import br.com.thallysprojects.pitang_desafio.exceptions.users.UsersNotFoundException;
-import br.com.thallysprojects.pitang_desafio.mappers.CarsMapper;
-import br.com.thallysprojects.pitang_desafio.repositories.CarsRepository;
 import br.com.thallysprojects.pitang_desafio.repositories.UsersRepository;
-import br.com.thallysprojects.pitang_desafio.utils.ValidationsCars;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -26,27 +19,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-//@ExtendWith(MockitoExtension.class)
+@DisplayName("Service de Autentication")
 class AuthenticationServiceTest {
 
-//    @InjectMocks
     AuthenticationService service;
 
-//    @Mock
     AuthenticationManager manager;
 
-//    @Mock
     TokenService tokenService;
 
-//    @Mock
     UsersRepository usersRepository;
 
-//    @Mock
     BCryptPasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         this.manager = Mockito.mock(AuthenticationManager.class);
         this.tokenService = Mockito.mock(TokenService.class);
         this.usersRepository = Mockito.mock(UsersRepository.class);
@@ -55,8 +42,8 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar login com sucesso")
     void testLoginSuccess() {
-        // Arrange
         AuthenticationUserDTO dto = new AuthenticationUserDTO("user", "password");
         Users user = new Users();
         user.setLogin("user");
@@ -67,22 +54,19 @@ class AuthenticationServiceTest {
         when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
         when(tokenService.gerarTokenJwt(user)).thenReturn("token");
 
-        // Act
         String token = service.login(dto);
 
-        // Assert
         assertNotNull(token);
         assertEquals("token", token);
         verify(usersRepository, times(1)).save(user);
     }
 
     @Test
+    @DisplayName("Deve lançar UsersNotFoundException quando houver erro ao singin com o usuário")
     void testLoginUserNotFound() {
-        // Arrange
         AuthenticationUserDTO dto = new AuthenticationUserDTO("user", "password");
         when(usersRepository.findByLogin("user")).thenReturn(null);
 
-        // Act & Assert
         UsersNotFoundException exception = assertThrows(UsersNotFoundException.class, () -> {
             service.login(dto);
         });
@@ -91,8 +75,8 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    @DisplayName("Deve lançar UsersNotFoundException quando houver erro com as credencias do usuário")
     void testLoginInvalidPassword() {
-        // Arrange
         AuthenticationUserDTO dto = new AuthenticationUserDTO("user", "wrongPassword");
         Users user = new Users();
         user.setLogin("user");
@@ -101,7 +85,6 @@ class AuthenticationServiceTest {
         when(usersRepository.findByLogin("user")).thenReturn(user);
         when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
 
-        // Act & Assert
         UsersNotFoundException exception = assertThrows(UsersNotFoundException.class, () -> {
             service.login(dto);
         });
