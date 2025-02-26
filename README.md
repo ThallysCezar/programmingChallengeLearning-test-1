@@ -160,9 +160,77 @@ Mas, de fato, como a API RESTful funciona? Então, esta API permite gerenciar us
         }
   ```
 3. Acessando Rotas Protegidas: Agora que você possui um token JWT, pode utilizá-lo para acessar rotas protegidas. Para isso, adicione o token ao cabeçalho Authorization de suas requisições.
+# Validações
+Algumas validações são necessárias, logo abaixo teremos:
+
+### E-mail
+- Deve conter caracteres alfanuméricos antes do @.
+- Pode conter ., _, +, e - antes do @.
+- Deve conter @.
+- Deve conter um domínio válido após o @ (ex: gmail.com, empresa.org).
+- O domínio pode conter . (ex: co.uk, gov.br).
+
+Exemplos válidos:
+- exemplo3@email.com.
+- meu.email123@example.com.
+- usuario+teste@email.co.uk.
+- nome_sobrenome@email.org.
+
+Exemplos inválidos:
+- email@com (domínio incompleto).
+- @example.com (não pode começar com @).
+- email.example.com (falta o @).
+- email@.com (falta o domínio)
+- email@example..com (não pode ter dois pontos seguidos)
+
+### Login
+- Deve conter apenas letras (a-z, A-Z), números (0-9) e underscore (_).
+- Deve ter no mínimo 5 caracteres.
+
+Exemplos válidos:
+- helloWorldu.
+- meu_login.
+- user01.
+- log_in.
+
+Exemplos inválidos:
+- ab12 (menos de 5 caracteres).
+- user!@# (contém caracteres especiais não permitidos).
+- log in (espaço não é permitido).
+- 12345 (não pode ser apenas números, precisa de pelo menos uma letra).
+
+### Password
+- Deve conter pelo menos 1 letra.
+- Deve conter pelo menos 1 número.
+- Deve ter no mínimo 6 caracteres.
+
+Exemplos válidos:
+- 123456T.
+- senha1.
+- senha1.
+- meuPass123.
+- a1b2c3d4.
+
+Exemplos inválidos:
+- abcdef (falta número).
+- 123456 (falta letra).
+- abc12 (menos de 6 caracteres).
+- senha_123 (contém caractere especial _ não permitido).
+# Rodando os testes
+
+Para rodar os testes, rode o seguinte comando
+
+```bash
+  mvn test
+```
+
+Os testes foram apenas feitos para:
+- Services: Os testes de serviço garantem que as regras de negócio funcionem corretamente. Aqui são validadas operações como cálculos, validações de dados e interações com repositórios.
+- Controllers: Os testes de controller verificam se as requisições HTTP são processadas corretamente, garantindo que as respostas tenham os códigos de status adequados (200 OK, 400 Bad Request, etc.) e os dados retornados sejam os esperados.
+- Utils: Testamos os métodos auxiliares da aplicação, como formatação de dados, conversões e funções reutilizáveis. Isso ajuda a evitar falhas em partes críticas do código.
+- Mappers: Os testes de mappers garantem que a conversão entre entidades e DTOs (Data Transfer Objects) seja feita corretamente, preservando a integridade dos dados ao trafegar entre as camadas do sistema.
 # Contribuindo
 
 Contribuições são sempre bem-vindas!
 
 Se você encontrar problemas ou tiver sugestões de melhorias, sinta-se à vontade para abrir um problema ou enviar uma solicitação pull.
-
