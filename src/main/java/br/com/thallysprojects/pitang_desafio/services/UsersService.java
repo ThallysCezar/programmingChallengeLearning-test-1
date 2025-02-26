@@ -3,6 +3,7 @@ package br.com.thallysprojects.pitang_desafio.services;
 import br.com.thallysprojects.pitang_desafio.dtos.MeDTO;
 import br.com.thallysprojects.pitang_desafio.dtos.UsersDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Users;
+import br.com.thallysprojects.pitang_desafio.exceptions.users.UsersBadRequestException;
 import br.com.thallysprojects.pitang_desafio.exceptions.users.UsersGeneralException;
 import br.com.thallysprojects.pitang_desafio.exceptions.users.UsersNotFoundException;
 import br.com.thallysprojects.pitang_desafio.mappers.UsersMapper;
@@ -90,6 +91,8 @@ public class UsersService implements UserDetailsService {
 
             dto.setPassword(new BCryptPasswordEncoder().encode(dto.getPassword()));
             mapper.toDTO(repository.save(mapper.toEntity(dto)));
+        } catch (UsersBadRequestException e) {
+            throw new UsersGeneralException(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         } catch (UsersGeneralException ex) {
             log.error("Erro desconhecido ao salvar um usuário: {}", ex.getMessage(), ex);
             throw new UsersGeneralException("Erro desconhecido ao salvar o carro", HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -106,16 +109,35 @@ public class UsersService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return repository.findByEmail(username);
+        Users user = repository.findByEmail(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado com o email: " + username);
+        }
+        return user;
     }
 
     public MeDTO getLoggerDTO() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String login = authentication.getName();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                throw new UsersNotFoundException("Nenhum usuário autenticado encontrado.", HttpStatus.UNAUTHORIZED.value());
+            }
 
-        Users user = repository.findByLogin(login);
+            String login = authentication.getName();
 
-        return mapper.toMeDTO(user);
+            Users user = repository.findByLogin(login);
+            if (user == null) {
+                throw new UsersNotFoundException("Usuário não encontrado para o login: " + login, HttpStatus.NOT_FOUND.value());
+            }
+
+            return mapper.toMeDTO(user);
+
+        } catch (UsersNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Erro desconhecido ao obter dados do usuário logado: {}", e.getMessage(), e);
+            throw new UsersGeneralException("Erro ao obter dados do usuário logado.", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
     }
 
 }
