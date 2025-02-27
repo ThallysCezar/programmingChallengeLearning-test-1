@@ -4,7 +4,6 @@ import br.com.thallysprojects.pitang_desafio.dtos.CarsDTO;
 import br.com.thallysprojects.pitang_desafio.dtos.MeDTO;
 import br.com.thallysprojects.pitang_desafio.dtos.UsersDTO;
 import br.com.thallysprojects.pitang_desafio.entities.Cars;
-import br.com.thallysprojects.pitang_desafio.entities.UserRole;
 import br.com.thallysprojects.pitang_desafio.entities.Users;
 import br.com.thallysprojects.pitang_desafio.factorios.CarsFactory;
 import br.com.thallysprojects.pitang_desafio.factorios.UsersFactory;
@@ -15,8 +14,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
