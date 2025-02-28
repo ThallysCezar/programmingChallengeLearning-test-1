@@ -72,13 +72,14 @@ class CarsMapperTest {
     void testToListDTO() {
         Cars car1 = CarsFactory.createDefaultCar();
         Cars car2 = CarsFactory.createDefaultCarTwo();
-        List<Cars> carsList = List.of(car1, car2);
 
         CarsDTO dto1 = CarsFactory.createDefaultCarDTO();
         CarsDTO dto2 = CarsFactory.createDefaultCarDTOTwo();
 
         when(modelMapper.map(car1, CarsDTO.class)).thenReturn(dto1);
         when(modelMapper.map(car2, CarsDTO.class)).thenReturn(dto2);
+
+        List<Cars> carsList = List.of(car1, car2);
 
         List<CarsDTO> dtosList = carsMapper.toListDTO(carsList);
 
