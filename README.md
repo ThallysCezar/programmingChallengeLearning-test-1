@@ -229,6 +229,46 @@ Os testes foram apenas feitos para:
 - Controllers: Os testes de controller verificam se as requisições HTTP são processadas corretamente, garantindo que as respostas tenham os códigos de status adequados (200 OK, 400 Bad Request, etc.) e os dados retornados sejam os esperados.
 - Utils: Testamos os métodos auxiliares da aplicação, como formatação de dados, conversões e funções reutilizáveis. Isso ajuda a evitar falhas em partes críticas do código.
 - Mappers: Os testes de mappers garantem que a conversão entre entidades e DTOs (Data Transfer Objects) seja feita corretamente, preservando a integridade dos dados ao trafegar entre as camadas do sistema.
+
+# Agendamento de Tarefas no Projeto
+
+No projeto, há uma tarefa agendada que remove usuários inativos e seus carros associados do banco de dados. Um usuário é considerado inativo se ele não fez login há mais de 30 dias.
+
+- Manter o banco de dados limpo: Usuários inativos ocupam espaço desnecessário no banco de dados.
+
+- Melhorar o desempenho: Menos dados no banco de dados significa consultas mais rápidas.
+
+- Garantir a integridade dos dados: A tarefa remove não apenas os usuários, mas também os carros associados a eles, evitando problemas de integridade.
+
+## Como Funciona o Agendamento?
+
+A tarefa é executada automaticamente 5 minutos após a aplicação ser iniciada. Ela segue os seguintes passos:
+
+1. Identifica usuários inativos:
+- Verifica a data do último login de cada usuário.
+- Se o último login foi há mais de 30 dias, o usuário é considerado inativo.
+
+2. Remove os carros associados:
+- Antes de remover um usuário, a tarefa exclui todos os carros associados a ele.
+- Isso evita erros no banco de dados, já que os carros dependem dos usuários.
+
+3. Remove os usuários inativos:
+- Após remover os carros, a tarefa exclui os usuários inativos.
+
+## Como Testar a Funcionalidade?
+Para testar a funcionalidade, siga os passos abaixo:
+
+1. Inicie a aplicação:
+- A aplicação será iniciada e o banco de dados será populado com dados de exemplo.
+
+2.  Aguarde 5 minutos:
+- Após 5 minutos, a tarefa agendada será executada automaticamente.
+
+3. Verifique o console:
+- A mensagem "Usuarios inativos removidos com sucesso." será exibida no console.
+
+4. Verifique o banco de dados:
+- Os usuários inativos e seus carros associados serão removidos do banco de dados.
 # Contribuindo
 
 Contribuições são sempre bem-vindas!
