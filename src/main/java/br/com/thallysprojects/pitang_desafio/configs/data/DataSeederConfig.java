@@ -58,7 +58,26 @@ public class DataSeederConfig implements CommandLineRunner {
 
             user1.setCars(List.of(car1, car2));
 
-            usersRepository.save(user1);
+            Users user2 = new Users();
+            user2.setFirstName("Maria");
+            user2.setLastName("Santos");
+            user2.setEmail("maria@email.com");
+            user2.setBirthday(LocalDate.now().minusYears(30));
+            user2.setLogin("mariasantos");
+            user2.setPassword(passwordEncoder.encode("senha456"));
+            user2.setPhone("11888888888");
+            user2.setRole(UserRole.LOJISTA);
+            user2.setLastLogin(LocalDate.now().minusDays(31));
+
+            Cars car3 = new Cars();
+            car3.setYears("2015");
+            car3.setLicensePlate("DEF-9012");
+            car3.setModel("Ford Fusion");
+            car3.setColor("Prata");
+            car3.setUsers(user2);
+
+            user2.setCars(List.of(car3));
+            usersRepository.saveAll(List.of(user1, user2));
 
             log.info("Dados iniciais inseridos no banco!");
         } else {
